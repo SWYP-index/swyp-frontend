@@ -20,7 +20,7 @@ export function useUser() {
   } = useQuery({
     queryKey: ['user'],
     queryFn: fetchUser,
-    retry: 1,
+    retry: 1, //재시도 횟수
     retryDelay: 1000,
   });
 
