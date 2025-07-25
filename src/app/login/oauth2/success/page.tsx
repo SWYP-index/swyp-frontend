@@ -1,25 +1,40 @@
 'use client';
+
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@/hooks/login/useUser';
 
 export default function OAuth2SuccessPage() {
   const router = useRouter();
+  const { user, loading } = useUser();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const hash = window.location.hash; // #accessToken=xxxxx
-      const params = new URLSearchParams(hash.replace('#', '')); // 해시 제거
-      const accessToken = params.get('accessToken');
+    if (typeof window === 'undefined') return;
 
-      if (accessToken) {
-        localStorage.setItem('accessToken', accessToken);
-        router.replace('/'); // 원하는 페이지로 리다이렉트
+    const hash = window.location.hash;
+    const params = new URLSearchParams(hash.replace('#', ''));
+    const accessToken = params.get('accessToken');
+
+    if (!accessToken) {
+      console.error('No access token found in URL');
+      router.replace('/login');
+      return;
+    }
+
+    localStorage.setItem('accessToken', accessToken);
+  }, [router]);
+
+  useEffect(() => {
+    if (!loading) {
+      if (user) {
+        console.log('유저 정보:', user);
+        router.replace('/');
       } else {
-        console.error('No access token found in URL');
+        console.error('유저 정보 가져오기 실패');
         router.replace('/login');
       }
     }
-  }, []);
+  }, [loading, user, router]);
 
-  return <div>로그인 중입니다...</div>;
+  return <div>{loading ? '로그인 중입니다...' : null}</div>;
 }

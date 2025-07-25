@@ -43,10 +43,19 @@ authInstance.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       try {
-        const res = await axios.post(`${BASE_URL}/auth/refresh`, {}, { withCredentials: true });
+        const res = await axios.post(
+          `${BASE_URL}/api/users/refresh`,
+          {},
+          { withCredentials: true },
+        );
 
         const newAccessToken = res.data.accessToken;
-        localStorage.setItem('access_token', newAccessToken);
+        localStorage.setItem('accessToken', newAccessToken);
+
+        // 새로 발급된 refreshToken을 쿠키에 저장
+        if (res.data.refreshToken) {
+          document.cookie = `refresh_token=${res.data.refreshToken}; HttpOnly; Secure; SameSite=Strict; Path=/`;
+        }
 
         // 원래 요청 재시도
         error.config.headers.Authorization = `Bearer ${newAccessToken}`;
