@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import FilterDropDown from './filterDropDown';
 import EmojiDropDown from './emojiDropDown';
 
 export default function SearchBar() {
+  const router = useRouter();
   const [category, setCategory] = useState('감정');
   const [keyword, setKeyword] = useState('');
   const [showFilterDropDown, setShowFilterDropDown] = useState(false);
@@ -14,7 +16,16 @@ export default function SearchBar() {
     if (category === '도서명') setKeyword(e.target.value);
   };
 
-  const handleSubmitSearchData = () => {};
+  const handleSubmitSearchData = () => {
+    if (!keyword && category === '도서명') return;
+
+    const query = new URLSearchParams({
+      keyword,
+      startIndex: '1',
+    }).toString();
+
+    router.push(`/result?${query}`);
+  };
 
   console.log(category);
   console.log(keyword);
